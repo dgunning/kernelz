@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "kernelz"
+version = "0.1.0"
+description = ""
+authors = ["Dwight Gunning <dgunning@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.6.1,<4.0.0"
+typer = "^0.3.2"
+httpx = "^0.16.1"
+colorama = "^0.4.4"
+jupyter = "^1.0.0"
+tabulate = "^0.8.8"
+pendulum = "^2.1.2"
+rich = "^9.11.0"
+
+[tool.poetry.dev-dependencies]
+nox = "^2020.12.31"
+pytest = "^6.2.2"
+nox-poetry = "^0.8.1"
+isort = "^5.7.0"
+flake8 = "^3.8.4"
+bandit = "^1.7.0"
+safety = "^1.10.3"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
