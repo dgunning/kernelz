@@ -7,10 +7,8 @@ authors = ["Dwight Gunning <dgunning@gmail.com>"]
 [tool.poetry.dependencies]
 python = ">=3.6.1,<4.0.0"
 typer = "^0.3.2"
-httpx = "^0.16.1"
 colorama = "^0.4.4"
 jupyter = "^1.0.0"
-tabulate = "^0.8.8"
 pendulum = "^2.1.2"
 rich = "^9.11.0"
 

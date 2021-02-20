@@ -3,12 +3,12 @@ import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 import pendulum
 from jupyter_core.paths import jupyter_path
 
-__all__ = ['list_kernels', 'list_kernel_dirs']
+__all__ = ['list_kernels', 'list_kernel_dirs', 'get_kernel', 'Kernel']
 
 
 @dataclass
@@ -78,3 +78,4 @@ def get_kernel(kernel_name: str) -> Optional[Kernel]:
     kernels = list_kernels(kernel_name)
     if len(kernels) == 1:
         return kernels[0]
+
