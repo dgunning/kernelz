@@ -1,6 +1,6 @@
 import os
 
-from kernelz.jupyter import list_kernels, list_kernel_dirs, get_kernel
+from kernelz.jupyter import list_kernels, list_kernel_dirs, get_kernel, list_kernels_like
 
 
 def setenv(monkeypatch):
@@ -18,6 +18,12 @@ def test_list_kernels(monkeypatch):
     setenv(monkeypatch)
     kernel_names = [k.name for k in list_kernels()]
     assert 'squad' in kernel_names
+
+
+def test_list_kernels_like(monkeypatch):
+    setenv(monkeypatch)
+    kernels = list_kernels_like('card')
+    assert 'cord' in [kernel.name for kernel in kernels]
 
 
 def test_list_kernels_by_name(monkeypatch):

@@ -1,14 +1,15 @@
+import difflib
 import json
 import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict, Optional
 
 import pendulum
 from jupyter_core.paths import jupyter_path
 
-__all__ = ['list_kernels', 'list_kernel_dirs', 'get_kernel', 'Kernel']
+__all__ = ['list_kernels', 'list_kernel_dirs','list_kernels_like',  'get_kernel', 'Kernel']
 
 
 @dataclass
@@ -28,6 +29,14 @@ class Kernel:
 
     def get_date_modified(self):
         return pendulum.from_timestamp(self.stat.st_mtime)
+
+    def __repr__(self):
+        created = self.get_date_created().to_formatted_date_string()
+        modified = self.get_date_modified().to_formatted_date_string()
+        return f"""
+        Display Name: {self.name}
+        Created: {created} Modified: {modified} Language: {self.get_language()}
+        """
 
 
 def run_command(*command) -> str:
@@ -69,6 +78,14 @@ def list_kernels(*kernel_names):
     return kernels
 
 
+def list_kernels_like(kernel_search_term: str):
+    kernels = list_kernels()
+    kernel_matches = difflib.get_close_matches(kernel_search_term,
+                                               [k.name for k in kernels])
+    similar_named_kernels = list(filter(lambda k: k.name in kernel_matches, kernels))
+    return similar_named_kernels
+
+
 def get_kernel(kernel_name: str) -> Optional[Kernel]:
     """
     Get a kernel with the given name
@@ -78,4 +95,3 @@ def get_kernel(kernel_name: str) -> Optional[Kernel]:
     kernels = list_kernels(kernel_name)
     if len(kernels) == 1:
         return kernels[0]
-
