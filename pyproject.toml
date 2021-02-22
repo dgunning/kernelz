@@ -1,13 +1,16 @@
 [tool.poetry]
 name = "kernelz"
 version = "0.1.0"
-description = ""
+description = "A tool to view and manage conda kernels on your machine"
 authors = ["Dwight Gunning <dgunning@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.scripts]
+kernelz = "kernelz.kernelz:app"
 
 [tool.poetry.dependencies]
 python = ">=3.6.1,<4.0.0"
-typer = "^0.3.2"
-colorama = "^0.4.4"
+typer = {extras = ["all"], version ="^0.3.2"}
 pendulum = "^2.1.2"
 rich = "^9.11.0"
 

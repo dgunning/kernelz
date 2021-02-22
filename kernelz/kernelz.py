@@ -4,7 +4,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from jupyter import list_kernels, list_kernels_like, get_kernel, Kernel
+from kernelz.jupyter import list_kernels, list_kernels_like, get_kernel, Kernel
 
 """
 Kernelz
