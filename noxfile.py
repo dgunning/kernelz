@@ -1,4 +1,3 @@
-import tempfile
 import nox
 
 nox.options.sessions = "safety", "tests"
@@ -12,7 +11,7 @@ def install(session, *dependencies):
 
 @session(python=["3.7", "3.8", "3.9"])
 def tests(session):
-    install(session, 'pytest', 'jupyter', 'pendulum')
+    install(session, 'pytest', 'typer', 'pendulum')
     session.run('pytest')
 
 
@@ -27,5 +26,14 @@ def safety(session):
             f"--output=requirements.txt",
             external=True,
         )
-    session.install("jupyter")
     session.run("safety", "check", f"--file=requirements.txt", "--full-report")
+
+
+@session()
+def bandit(session):
+    session.run("bandit", "kernelz", external=True)
+
+
+@session()
+def flake8(session):
+    session.run("flake8", "kernelz", external=True)
