@@ -1,7 +1,6 @@
 import difflib
 import json
 import os
-import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass
@@ -10,7 +9,8 @@ from typing import Dict, Optional
 
 import pendulum
 
-__all__ = ['list_kernels', 'list_kernel_dirs', 'list_kernels_like', 'get_kernel', 'Kernel']
+__all__ = ['list_kernels', 'list_kernel_dirs', 'list_kernels_like',
+           'get_kernel', 'Kernel']
 
 env = os.environ
 
@@ -43,15 +43,6 @@ class Kernel:
         Display Name: {self.name}
         Created: {created} Modified: {modified} Language: {self.get_language()}
         """
-
-
-def run_command(*command) -> str:
-    """
-    Run the command and return the result as a string
-    :param command: The command to run
-    :return: The result of the command as a string
-    """
-    return subprocess.run(command, stdout=subprocess.PIPE).stdout.decode().strip()
 
 
 def _last_modified(path: Path):
@@ -99,7 +90,9 @@ def envset(name):
     An environment variable is considered set if it is assigned to a value
     other than 'no', 'n', 'false', 'off', '0', or '0.0' (case insensitive)
     """
-    return os.environ.get(name, 'no').lower() not in ['no', 'n', 'false', 'off', '0', '0.0']
+    return os.environ.get(name, 'no').lower() not in ['no', 'n',
+                                                      'false', 'off',
+                                                      '0', '0.0']
 
 
 def jupyter_data_dir():
@@ -107,7 +100,6 @@ def jupyter_data_dir():
     These are non-transient, non-configuration files.
     Returns JUPYTER_DATA_DIR if defined, else a platform-appropriate path.
     """
-    env = os.environ
 
     if env.get('JUPYTER_DATA_DIR'):
         return env['JUPYTER_DATA_DIR']
@@ -144,7 +136,8 @@ def _get_system_jupyter_path():
 def jupyter_path(*subdirs):
     """Return a list of directories to search for data files
     JUPYTER_PATH environment variable has highest priority.
-    If the JUPYTER_PREFER_ENV_PATH environment variable is set, the environment-level
+    If the JUPYTER_PREFER_ENV_PATH environment variable is set,
+    the environment-level
     directories will have priority over user-level directories.
     If ``*subdirs`` are given, that subdirectory will be added to each element.
     Examples:
@@ -155,20 +148,21 @@ def jupyter_path(*subdirs):
     """
 
     # First check the JUPYTER_PATH environment variable
-    env = os.environ
-    paths = [p.rstrip(os.sep) for p in env.get('JUPYTER_PATH', '').split(os.pathsep) if env.get('JUPYTER_PATH')]
+    paths = [p.rstrip(os.sep)
+             for p in os.environ.get('JUPYTER_PATH', '').split(os.pathsep)
+             if os.environ.get('JUPYTER_PATH')]
 
     # Next check the user's data dir
     user_dir = jupyter_data_dir()
     env_jupyter_path = [os.path.join(sys.prefix, 'share', 'jupyter')]
     system_jupyter_path = _get_system_jupyter_path()
-    env = [p for p in env_jupyter_path if p not in system_jupyter_path]
+    env_path = [p for p in env_jupyter_path if p not in system_jupyter_path]
     if envset('JUPYTER_PREFER_ENV_PATH'):
-        paths.extend(env)
+        paths.extend(env_path)
         paths.append(user_dir)
     else:
         paths.append(user_dir)
-        paths.extend(env)
+        paths.extend(env_path)
 
     paths.extend(system_jupyter_path)
 
@@ -184,7 +178,8 @@ def list_kernel_dirs():
     """
     return [kernel_dir
             for kernel_path in filter(os.path.exists, jupyter_path('kernels'))
-            for kernel_dir in Path(kernel_path).iterdir() if kernel_dir.is_dir()]
+            for kernel_dir in Path(kernel_path).iterdir()
+            if kernel_dir.is_dir()]
 
 
 def list_kernels(*kernel_names):
@@ -208,7 +203,8 @@ def list_kernels_like(kernel_search_term: str):
     kernels = list_kernels()
     kernel_matches = difflib.get_close_matches(kernel_search_term,
                                                [k.name for k in kernels])
-    similar_named_kernels = list(filter(lambda k: k.name in kernel_matches, kernels))
+    similar_named_kernels = list(filter(lambda k: k.name in kernel_matches,
+                                        kernels))
     return similar_named_kernels
 
 

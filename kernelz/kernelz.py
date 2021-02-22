@@ -11,7 +11,6 @@ Kernelz
 
 """
 
-
 app = typer.Typer()
 
 
@@ -50,12 +49,13 @@ def to_markdown(kernel: Kernel):
     created = kernel.get_date_created().to_formatted_date_string()
     modified = kernel.get_date_modified().to_formatted_date_string()
     template = (
-        f"""
+            f"""
  [bold]{kernel.get_display_name()}[/bold] ({kernel.name})
  [green]{' '.join(kernel.get_argv())}[/green]
- -------------------------------------------------------------
- [bold]Created[/bold]: [blue]{created}[/blue] [bold]Modified[/bold]: [blue]{modified}[/blue] [bold]Language[/bold]: {kernel.get_language()}
-    """
+ -------------------------------------------------------------\n""" +
+            f"[bold]Created[/bold]: [blue]{created}[/blue]  "
+            f"[bold]Modified[/bold]: [blue]{modified}[/blue] [bold] " +
+            f"Language[/bold]: {kernel.get_language()}"
     )
     return template
 
@@ -73,11 +73,12 @@ def show(kernel_name: str):
         kernel_number = int(kernel_name)
         kernels = list_kernels()
         if kernel_number < 1 or kernel_number > len(kernels):
-            console.print(f'No such kernel {kernel_number} .. available kernels are')
+            console.print(f'No such kernel {kernel_number} .. ' +
+                          'available kernels are')
             console.print(to_table(kernels))
             return
         else:
-            kernel = kernels[kernel_number -1]
+            kernel = kernels[kernel_number - 1]
     else:
         kernel = get_kernel(kernel_name)
     if kernel:
@@ -85,12 +86,16 @@ def show(kernel_name: str):
     else:
         similar_kernels = list_kernels_like(kernel_name)
         if len(similar_kernels) > 0:
-            console.print(f'No kernel named [bold red]{kernel_name}[/bold red] .. do you mean one of the following ...?')
+            console.print(
+                f'No kernel named [bold red]{kernel_name}[/bold red] ' +
+                '.. do you mean one of the following ...?')
             for kernel in similar_kernels:
                 console.print(to_markdown(kernel))
                 console.print()
         else:
-            console.print(f'\nNo kernel named [bold red]{kernel_name}[/bold red]. Here are the kernels on your system')
+            console.print(
+                f'\nNo kernel named [bold red]{kernel_name}[/bold red]. ' +
+                'Here are the kernels on your system')
             console.print(to_table(list_kernels()))
 
 
