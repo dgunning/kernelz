@@ -1,2 +1,4 @@
 .idea/
 .nox/
+dist/
+.pytest_cache/
