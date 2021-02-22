@@ -33,6 +33,9 @@ class Kernel:
     def get_date_modified(self):
         return pendulum.from_timestamp(self.stat.st_mtime)
 
+    def get_argv(self):
+        return self.kernel_json.get('argv')
+
     def __repr__(self):
         created = self.get_date_created().to_formatted_date_string()
         modified = self.get_date_modified().to_formatted_date_string()

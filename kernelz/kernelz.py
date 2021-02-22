@@ -6,11 +6,22 @@ from rich.table import Table
 
 from jupyter import list_kernels, list_kernels_like, get_kernel, Kernel
 
+"""
+Kernelz
+
+"""
+
+
 app = typer.Typer()
 
 
-def to_table(kernels: List[Kernel]):
-    table = Table(show_header=True, header_style="bold green")
+def to_table(kernels: List[Kernel]) -> Table:
+    """
+    Renders the kernel list to a table
+    :param kernels:
+    :return: a Table
+    """
+    table = Table(show_header=True, header_style="bold blue")
     table.add_column('', style='dim')
     table.add_column('Display Name', style='bold')
     table.add_column('Name')
@@ -31,13 +42,19 @@ def to_table(kernels: List[Kernel]):
 
 
 def to_markdown(kernel: Kernel):
+    """
+    Renders to a text representation of the kernel
+    :param kernel:
+    :return:
+    """
     created = kernel.get_date_created().to_formatted_date_string()
     modified = kernel.get_date_modified().to_formatted_date_string()
     template = (
         f"""
-    [bold]{kernel.get_display_name()}[/bold] ({kernel.name})
-    -------------------------------------------------------------
-    [bold]Created[/bold]: [blue]{created}[/blue] [bold]Modified[/bold]: [blue]{modified}[/blue] [bold]Language[/bold]: {kernel.get_language()}
+ [bold]{kernel.get_display_name()}[/bold] ({kernel.name})
+ [green]{' '.join(kernel.get_argv())}[/green]
+ -------------------------------------------------------------
+ [bold]Created[/bold]: [blue]{created}[/blue] [bold]Modified[/bold]: [blue]{modified}[/blue] [bold]Language[/bold]: {kernel.get_language()}
     """
     )
     return template

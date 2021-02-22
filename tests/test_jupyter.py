@@ -37,3 +37,8 @@ def test_get_kernel(monkeypatch):
     setenv(monkeypatch)
     kernel = get_kernel('squad')
     assert kernel
+
+
+def test_get_argv():
+    kernel = get_kernel('cord')
+    print(kernel.get_argv())
