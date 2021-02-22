@@ -27,5 +27,5 @@ def safety(session):
             f"--output=requirements.txt",
             external=True,
         )
-    session.install("safety")
+    session.install("jupyter")
     session.run("safety", "check", f"--file=requirements.txt", "--full-report")

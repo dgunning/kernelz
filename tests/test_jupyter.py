@@ -1,6 +1,7 @@
 import os
 
-from kernelz.jupyter import list_kernels, list_kernel_dirs, get_kernel, list_kernels_like
+from kernelz.jupyter import list_kernels, list_kernel_dirs, get_kernel, list_kernels_like, jupyter_path
+
 
 
 def setenv(monkeypatch):

@@ -2,14 +2,17 @@ import difflib
 import json
 import os
 import subprocess
+import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Optional
 
 import pendulum
-from jupyter_core.paths import jupyter_path
 
-__all__ = ['list_kernels', 'list_kernel_dirs','list_kernels_like',  'get_kernel', 'Kernel']
+__all__ = ['list_kernels', 'list_kernel_dirs', 'list_kernels_like', 'get_kernel', 'Kernel']
+
+env = os.environ
 
 
 @dataclass
@@ -50,6 +53,126 @@ def run_command(*command) -> str:
 
 def _last_modified(path: Path):
     path.stat()
+
+
+_temp_dirs = {}
+
+
+def _make_temp_once(name):
+    """Make or reuse a temporary directory.
+    If this is called with the same name in the same process, it will return
+    the same directory.
+    """
+    try:
+        return _temp_dirs[name]
+    except KeyError:
+        d = _temp_dirs[name] = tempfile.mkdtemp(prefix=name + '-')
+        return d
+
+
+def get_home_dir():
+    """Get the user home directory"""
+    return os.path.realpath(os.path.expanduser('~'))
+
+
+def jupyter_config_dir():
+    """
+    Returns JUPYTER_CONFIG_DIR if defined, else ~/.jupyter
+    """
+    if env.get('JUPYTER_NO_CONFIG'):
+        return _make_temp_once('jupyter-clean-cfg')
+    elif env.get('JUPYTER_CONFIG_DIR'):
+        return env['JUPYTER_CONFIG_DIR']
+    else:
+        home_dir = get_home_dir()
+        return os.path.join(home_dir, '.jupyter')
+
+
+ENV_JUPYTER_PATH = [os.path.join(sys.prefix, 'share', 'jupyter')]
+
+
+def envset(name):
+    """Return True if the given environment variable is set
+    An environment variable is considered set if it is assigned to a value
+    other than 'no', 'n', 'false', 'off', '0', or '0.0' (case insensitive)
+    """
+    return os.environ.get(name, 'no').lower() not in ['no', 'n', 'false', 'off', '0', '0.0']
+
+
+def jupyter_data_dir():
+    """Get the config directory for Jupyter data files for this platform and user.
+    These are non-transient, non-configuration files.
+    Returns JUPYTER_DATA_DIR if defined, else a platform-appropriate path.
+    """
+    env = os.environ
+
+    if env.get('JUPYTER_DATA_DIR'):
+        return env['JUPYTER_DATA_DIR']
+
+    home = get_home_dir()
+
+    if sys.platform == 'darwin':
+        return os.path.join(home, 'Library', 'Jupyter')
+    elif os.name == 'nt':
+        appdata = os.environ.get('APPDATA', None)
+        if appdata:
+            return os.path.join(appdata, 'jupyter')
+        else:
+            return os.path.join(jupyter_config_dir(), 'data')
+    else:
+        # Linux, non-OS X Unix, AIX, etc.
+        xdg = env.get("XDG_DATA_HOME", None)
+        if not xdg:
+            xdg = os.path.join(home, '.local', 'share')
+        return os.path.join(xdg, 'jupyter')
+
+
+def _get_system_jupyter_path():
+    if os.name == 'nt':
+        programdata = os.environ.get('PROGRAMDATA', None)
+        if programdata:
+            return [os.path.join(programdata, 'jupyter')]
+        else:
+            return [os.path.join(sys.prefix, 'share', 'jupyter')]
+    else:
+        return ["/usr/local/share/jupyter", "/usr/share/jupyter"]
+
+
+def jupyter_path(*subdirs):
+    """Return a list of directories to search for data files
+    JUPYTER_PATH environment variable has highest priority.
+    If the JUPYTER_PREFER_ENV_PATH environment variable is set, the environment-level
+    directories will have priority over user-level directories.
+    If ``*subdirs`` are given, that subdirectory will be added to each element.
+    Examples:
+    >>> jupyter_path()
+    ['~/.local/jupyter', '/usr/local/share/jupyter']
+    >>> jupyter_path('kernels')
+    ['~/.local/jupyter/kernels', '/usr/local/share/jupyter/kernels']
+    """
+
+    # First check the JUPYTER_PATH environment variable
+    env = os.environ
+    paths = [p.rstrip(os.sep) for p in env.get('JUPYTER_PATH', '').split(os.pathsep) if env.get('JUPYTER_PATH')]
+
+    # Next check the user's data dir
+    user_dir = jupyter_data_dir()
+    env_jupyter_path = [os.path.join(sys.prefix, 'share', 'jupyter')]
+    system_jupyter_path = _get_system_jupyter_path()
+    env = [p for p in env_jupyter_path if p not in system_jupyter_path]
+    if envset('JUPYTER_PREFER_ENV_PATH'):
+        paths.extend(env)
+        paths.append(user_dir)
+    else:
+        paths.append(user_dir)
+        paths.extend(env)
+
+    paths.extend(system_jupyter_path)
+
+    # add subdir, if requested
+    if subdirs:
+        paths = [os.path.join(p, *subdirs) for p in paths]
+    return paths
 
 
 def list_kernel_dirs():
