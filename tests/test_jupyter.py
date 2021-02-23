@@ -1,6 +1,7 @@
 import os
 
 from kernelz.jupyter import list_kernels, list_kernel_dirs, get_kernel, list_kernels_like
+from kernelz.kernelz import find_kernel
 
 
 def setenv(monkeypatch):
@@ -10,7 +11,6 @@ def setenv(monkeypatch):
 def test_list_kernel_dirs(monkeypatch):
     setenv(monkeypatch)
     kernel_dirs = list_kernel_dirs()
-    print(kernel_dirs)
     assert f'tests{os.sep}data{os.sep}kernels{os.sep}squad' in list(map(str, kernel_dirs))
 
 
@@ -38,12 +38,22 @@ def test_get_kernel(monkeypatch):
     assert kernel
 
 
-def test_get_argv():
-    kernel = get_kernel('cord')
-    print(kernel.get_argv())
+def test_get_argv(monkeypatch):
+    setenv(monkeypatch)
+    kernel = get_kernel('squad')
+    assert kernel.get_argv()
+    assert type(kernel.get_argv()) == list
+    assert 'python' in kernel.get_argv()[0]
 
 
 def test_get_executable(monkeypatch):
     setenv(monkeypatch)
     kernel = get_kernel('squad')
     assert 'python' in kernel.get_executable()
+
+
+def test_find_kernel(monkeypatch):
+    setenv(monkeypatch)
+    kernel = find_kernel('squad')
+    assert kernel
+    assert kernel.name =='squad'

@@ -1,9 +1,10 @@
+import os
 from typing import List
 
 import typer
 from rich.console import Console
 from rich.table import Table
-import os
+
 from kernelz.core import run_command
 from kernelz.jupyter import list_kernels, list_kernels_like, get_kernel, Kernel
 
@@ -11,6 +12,8 @@ from kernelz.jupyter import list_kernels, list_kernels_like, get_kernel, Kernel
 Kernelz
 
 """
+
+__all__ = ['to_table', 'to_markdown']
 
 app = typer.Typer()
 
@@ -23,20 +26,21 @@ def to_table(kernels: List[Kernel]) -> Table:
     """
     table = Table(show_header=True, header_style="bold blue")
     table.add_column('', style='dim')
-    table.add_column('Display Name', style='bold')
-    table.add_column('Name')
+    table.add_column('Name', style='bold')
     table.add_column('Created')
     table.add_column('Modified')
     table.add_column('Language')
+    table.add_column('Valid')
 
     row_num = 1
     for kernel in kernels:
         table.add_row(str(row_num),
-                      kernel.get_display_name(),
                       kernel.name,
                       kernel.get_date_created().to_formatted_date_string(),
                       kernel.get_date_modified().to_formatted_date_string(),
-                      kernel.get_language())
+                      kernel.get_language(),
+                      'Valid' if os.path.exists(kernel.get_executable())
+                      else 'Invalid')
         row_num += 1
     return table
 
@@ -51,12 +55,13 @@ def to_markdown(kernel: Kernel):
     modified = kernel.get_date_modified().to_formatted_date_string()
     template = (
             f"""
- [bold]{kernel.get_display_name()}[/bold] ({kernel.name})
+ [bold]{kernel.get_name()}[/bold]
  [green]{kernel.get_executable()}[/green]
  -------------------------------------------------------------\n""" +
-            f"[bold]Created[/bold]: [blue]{created}[/blue]  "
-            f"[bold]Modified[/bold]: [blue]{modified}[/blue] [bold] " +
-            f"Language[/bold]: {kernel.get_language()}"
+            f" [bold]Created[/bold]: [blue]{created}[/blue]  "
+            f" [bold]Modified[/bold]: [blue]{modified}[/blue] [bold] " +
+            f" Language[/bold]: {kernel.get_language()}" +
+            "\n"
     )
     return template
 
@@ -69,7 +74,8 @@ def warn(*messages):
 def find_kernel(kernel_name: str):
     """
     Find the kernel with that name or number
-    :param kernel_name: The name of the kernel or the number of the kernel in the list
+    :param kernel_name: The name of the kernel or the number of the kernel
+                        in the list
     :return: the kernel
     """
     if kernel_name.isdigit():
@@ -84,10 +90,20 @@ def find_kernel(kernel_name: str):
 
 
 @app.command()
+def about():
+    console = Console()
+    console.print("""
+  [bold]Kernelz - View and manage your conda kernels[/bold]
+
+  Kernelz is a tool for viewing and working with conda kernels
+  See https://github.com/dgunning/kernelz for more information. \n
+    """)
+
+
+@app.command()
 def run(kernel_name: str):
     """
-    Run the kernel
-    :param kernel_name:
+    Open a python console on the given kernel
     """
     kernel = find_kernel(kernel_name)
     if kernel:
@@ -138,7 +154,8 @@ def freeze(kernel_name: str):
         console = Console()
         result = run_command(kernel.get_executable(), '-m', 'pip', 'freeze')
         console.print()
-        console.print(f'[bold]# Packages Installed in {kernel.get_display_name()}[/bold]')
+        console.print(f'[bold]# Packages Installed in '
+                      f'{kernel.get_display_name()}[/bold]')
         console.print(result)
     else:
         warn('No such kernel', kernel_name)

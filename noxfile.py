@@ -18,7 +18,7 @@ def tests(session):
     """
     Run the tests
     """
-    install(session, 'pytest', 'typer', 'pendulum')
+    install(session, 'pytest', 'typer', 'pendulum', 'rich')
     session.run('pytest')
 
 

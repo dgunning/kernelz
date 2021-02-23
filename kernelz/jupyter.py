@@ -21,6 +21,9 @@ class Kernel:
     kernel_json: Dict[str, str]
     stat: os.stat_result
 
+    def get_name(self):
+        return self.name
+
     def get_display_name(self):
         return self.kernel_json.get('display_name')
 
