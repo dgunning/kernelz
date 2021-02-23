@@ -3,7 +3,7 @@ from typing import List
 import typer
 from rich.console import Console
 from rich.table import Table
-
+import os
 from kernelz.core import run_command
 from kernelz.jupyter import list_kernels, list_kernels_like, get_kernel, Kernel
 
@@ -84,11 +84,26 @@ def find_kernel(kernel_name: str):
 
 
 @app.command()
+def run(kernel_name: str):
+    """
+    Run the kernel
+    :param kernel_name:
+    """
+    kernel = find_kernel(kernel_name)
+    if kernel:
+        if os.path.exists(kernel.get_executable()):
+            import subprocess
+            subprocess.run(kernel.get_executable())
+        else:
+            warn('Cannot find kernel python', kernel.get_executable())
+    else:
+        warn('No such kernel', kernel_name)
+
+
+@app.command()
 def show(kernel_name: str):
     """
-    Show details about a kernel
-    :param kernel_name:
-    :return:
+    Show details about a kernel, using the name or kernel number
     """
     console = Console()
     kernel = find_kernel(kernel_name)
@@ -114,6 +129,10 @@ def show(kernel_name: str):
 
 @app.command()
 def freeze(kernel_name: str):
+    """
+    Show the installed dependencies in this kernel. Uses pip freeze
+    :param kernel_name: The kernel name
+    """
     kernel = find_kernel(kernel_name)
     if kernel:
         console = Console()
