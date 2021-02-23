@@ -5,7 +5,7 @@ from rich.console import Console
 from rich.table import Table
 
 from kernelz.jupyter import list_kernels, list_kernels_like, get_kernel, Kernel
-
+from kernelz.core import run_command
 """
 Kernelz
 
@@ -51,7 +51,7 @@ def to_markdown(kernel: Kernel):
     template = (
             f"""
  [bold]{kernel.get_display_name()}[/bold] ({kernel.name})
- [green]{' '.join(kernel.get_argv())}[/green]
+ [green]{kernel.get_executable()}[/green]
  -------------------------------------------------------------\n""" +
             f"[bold]Created[/bold]: [blue]{created}[/blue]  "
             f"[bold]Modified[/bold]: [blue]{modified}[/blue] [bold] " +
@@ -97,6 +97,19 @@ def show(kernel_name: str):
                 f'\nNo kernel named [bold red]{kernel_name}[/bold red]. ' +
                 'Here are the kernels on your system')
             console.print(to_table(list_kernels()))
+    if kernel:
+        return kernel
+
+
+@app.command()
+def freeze(kernel_name: str):
+    kernel = show(kernel_name)
+    if kernel:
+        console = Console()
+        result = run_command(kernel.get_executable(), '-m', 'pip', 'freeze')
+        console.print()
+        console.print(f'[bold]# Packages Installed in {kernel.get_display_name()}[/bold]')
+        console.print(result)
 
 
 @app.command(name="list")

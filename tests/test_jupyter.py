@@ -41,3 +41,9 @@ def test_get_kernel(monkeypatch):
 def test_get_argv():
     kernel = get_kernel('cord')
     print(kernel.get_argv())
+
+
+def test_get_executable(monkeypatch):
+    setenv(monkeypatch)
+    kernel = get_kernel('squad')
+    assert 'python' in kernel.get_executable()

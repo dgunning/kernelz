@@ -33,6 +33,9 @@ class Kernel:
     def get_date_modified(self):
         return pendulum.from_timestamp(self.stat.st_mtime)
 
+    def get_executable(self):
+        return self.kernel_json.get('argv')[0]
+
     def get_argv(self):
         return self.kernel_json.get('argv')
 
