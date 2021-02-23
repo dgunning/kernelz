@@ -4,8 +4,9 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from kernelz.jupyter import list_kernels, list_kernels_like, get_kernel, Kernel
 from kernelz.core import run_command
+from kernelz.jupyter import list_kernels, list_kernels_like, get_kernel, Kernel
+
 """
 Kernelz
 
@@ -60,6 +61,28 @@ def to_markdown(kernel: Kernel):
     return template
 
 
+def warn(*messages):
+    console = Console()
+    console.print(*messages)
+
+
+def find_kernel(kernel_name: str):
+    """
+    Find the kernel with that name or number
+    :param kernel_name: The name of the kernel or the number of the kernel in the list
+    :return: the kernel
+    """
+    if kernel_name.isdigit():
+        kernel_number = int(kernel_name)
+        kernels = list_kernels()
+        if kernel_number > 0 or kernel_number <= len(kernels):
+            kernel = kernels[kernel_number + 1]
+    else:
+        kernel = get_kernel(kernel_name)
+    if kernel:
+        return kernel
+
+
 @app.command()
 def show(kernel_name: str):
     """
@@ -68,19 +91,7 @@ def show(kernel_name: str):
     :return:
     """
     console = Console()
-
-    if kernel_name.isdigit():
-        kernel_number = int(kernel_name)
-        kernels = list_kernels()
-        if kernel_number < 1 or kernel_number > len(kernels):
-            console.print(f'No such kernel {kernel_number} .. ' +
-                          'available kernels are')
-            console.print(to_table(kernels))
-            return
-        else:
-            kernel = kernels[kernel_number - 1]
-    else:
-        kernel = get_kernel(kernel_name)
+    kernel = find_kernel(kernel_name)
     if kernel:
         console.print(to_markdown(kernel))
     else:
@@ -103,13 +114,15 @@ def show(kernel_name: str):
 
 @app.command()
 def freeze(kernel_name: str):
-    kernel = show(kernel_name)
+    kernel = find_kernel(kernel_name)
     if kernel:
         console = Console()
         result = run_command(kernel.get_executable(), '-m', 'pip', 'freeze')
         console.print()
         console.print(f'[bold]# Packages Installed in {kernel.get_display_name()}[/bold]')
         console.print(result)
+    else:
+        warn('No such kernel', kernel_name)
 
 
 @app.command(name="list")
