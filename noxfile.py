@@ -52,4 +52,4 @@ def flake8(session):
     """
     Run flake8 code inspection
     """
-    session.run("flake8", "kernelz", external=True)
+    session.run("flake8", "kernelz", '--max-line-length=127', external=True)
