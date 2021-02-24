@@ -91,6 +91,9 @@ def find_kernel(kernel_name: str):
 
 @app.command()
 def about():
+    """
+    Show information about kernelz
+    """
     console = Console()
     console.print("""
   [bold]Kernelz - View and manage your conda kernels[/bold]
@@ -141,6 +144,14 @@ def show(kernel_name: str):
             console.print(to_table(list_kernels()))
     if kernel:
         return kernel
+
+
+@app.command()
+def view(kernal_name: str):
+    """
+    Show details about a kernel, using the name or kernel number
+    """
+    return show(kernal_name)
 
 
 @app.command()
