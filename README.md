@@ -37,7 +37,7 @@ python -m kernels show <kernel>
 python -m kernels view <kernel>
 ```
 
-### Showing a installed dependencies
+### Showing installed dependencies
 You can see the libraries installed in a kernel using the command `freeze`. This produces the output of `pip freeze`.
 ``bash
 python -m kernels freeze <kernel>
