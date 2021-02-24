@@ -7,7 +7,7 @@
 ```bash
 pip install -U --user git+https://github.com/dgunning/kernelz.git
 ```
-## Using Kkernels ernelz
+## Using Kkernels
 **kernelz** is meant to provide information about the kernels that are on your system.
 
  To see the list of available commands type the following
