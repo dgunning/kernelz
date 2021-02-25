@@ -1,6 +1,7 @@
 import difflib
 import json
 import os
+import re
 import sys
 import tempfile
 from dataclasses import dataclass
@@ -9,8 +10,10 @@ from typing import Dict, Optional
 
 import pendulum
 
-__all__ = ['list_kernels', 'list_kernel_dirs', 'list_kernels_like',
-           'get_kernel', 'Kernel']
+from kernelz.core import run_command
+
+__all__ = ['list_kernels', 'list_kernel_dirs', 'list_kernels_like', 'list_conda_envs',
+           'get_kernel', 'Kernel', 'CondaEnv']
 
 env = os.environ
 
@@ -223,3 +226,31 @@ def get_kernel(kernel_name: str) -> Optional[Kernel]:
     kernels = list_kernels(kernel_name)
     if len(kernels) == 1:
         return kernels[0]
+
+
+@dataclass
+class CondaEnv:
+    name: str
+    path: str
+    active: bool
+
+
+def list_conda_envs():
+    result = run_command('conda', 'env', 'list')
+    envs = []
+    for line in result.splitlines():
+        if 'conda environments' in line:
+            continue
+        parts = re.sub(' +', ' ', line).split(' ')
+        if len(parts) < 2:
+            continue
+        if len(parts) == 2:
+            name, path = parts
+            is_active = False
+        elif len(parts) == 3:
+            name, is_active, path = parts[0], parts[1] == '*', parts[2]
+        if not name:
+            name = os.path.basename(path)
+        envs.append(CondaEnv(name, path, is_active))
+
+    return envs

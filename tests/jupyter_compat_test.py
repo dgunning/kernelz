@@ -1,5 +1,6 @@
-from kernelz.jupyter import jupyter_path
 import pytest
+
+from kernelz.jupyter import jupyter_path
 
 
 @pytest.mark.skip(reason="Test only with jupyter path installed")

@@ -6,19 +6,19 @@ from rich.console import Console
 from rich.table import Table
 
 from kernelz.core import run_command
-from kernelz.jupyter import list_kernels, list_kernels_like, get_kernel, Kernel
+from kernelz.jupyter import list_kernels, list_kernels_like, get_kernel, Kernel, CondaEnv, list_conda_envs
 
 """
 Kernelz
 
 """
 
-__all__ = ['to_table', 'to_markdown']
+__all__ = ['kernels_to_table', 'to_markdown']
 
 app = typer.Typer()
 
 
-def to_table(kernels: List[Kernel]) -> Table:
+def kernels_to_table(kernels: List[Kernel]) -> Table:
     """
     Renders the kernel list to a table
     :param kernels:
@@ -41,6 +41,20 @@ def to_table(kernels: List[Kernel]) -> Table:
                       kernel.get_language(),
                       'Valid' if os.path.exists(kernel.get_executable())
                       else 'Invalid')
+        row_num += 1
+    return table
+
+
+def envs_to_table(envs: List[CondaEnv]) -> Table:
+    table = Table(show_header=True, header_style="bold blue")
+    table.add_column('', style='dim')
+    table.add_column('Name', style='bold')
+    table.add_column('Path')
+    row_num = 1
+    for env in envs:
+        table.add_row((str(row_num)),
+                      env.name,
+                      env.path)
         row_num += 1
     return table
 
@@ -141,7 +155,7 @@ def show(kernel_name: str):
             console.print(
                 f'\nNo kernel named [bold red]{kernel_name}[/bold red]. ' +
                 'Here are the kernels on your system')
-            console.print(to_table(list_kernels()))
+            console.print(kernels_to_table(list_kernels()))
     if kernel:
         return kernel
 
@@ -175,13 +189,25 @@ def freeze(kernel_name: str):
 @app.command(name="list")
 def show_all():
     """
-    List the available IPython kernels on this machine
+    List the available kernels on this machine
     """
     kernels = list_kernels()
     console = Console()
-    table = to_table(kernels)
+    table = kernels_to_table(kernels)
 
     typer.secho("\nConda Kernels\n", fg=typer.colors.BRIGHT_BLUE)
+    console.print(table)
+
+
+@app.command()
+def envs():
+    """
+    List the available conda envs on this machine
+    """
+    conda_envs = list_conda_envs()
+    console = Console()
+    table = envs_to_table(conda_envs)
+    typer.secho("\nConda Environments\n", fg=typer.colors.BRIGHT_BLUE)
     console.print(table)
 
 

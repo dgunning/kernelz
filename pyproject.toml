@@ -10,7 +10,7 @@ kernelz = "kernelz.kernelz:app"
 
 [tool.poetry.dependencies]
 python = ">=3.6.1,<4.0.0"
-typer = {extras = ["all"], version ="^0.3.2"}
+typer = { extras = ["all"], version = "^0.3.2" }
 pendulum = "^2.1.2"
 rich = "^9.11.0"
 

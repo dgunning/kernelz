@@ -28,14 +28,14 @@ def safety(session):
     Run safety check
     """
     session.run(
-            "poetry",
-            "export",
-            "--dev",
-            "--format=requirements.txt",
-            "--without-hashes",
-            f"--output=requirements.txt",
-            external=True,
-        )
+        "poetry",
+        "export",
+        "--dev",
+        "--format=requirements.txt",
+        "--without-hashes",
+        f"--output=requirements.txt",
+        external=True,
+    )
     session.run("safety", "check", f"--file=requirements.txt", "--full-report")
 
 

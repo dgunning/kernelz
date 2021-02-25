@@ -56,4 +56,4 @@ def test_find_kernel(monkeypatch):
     setenv(monkeypatch)
     kernel = find_kernel('squad')
     assert kernel
-    assert kernel.name =='squad'
+    assert kernel.name == 'squad'
