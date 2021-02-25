@@ -1,7 +1,7 @@
 import nox
 from nox_poetry import session
 
-nox.options.sessions = "safety", "tests"
+nox.options.sessions = "bandit", "flake8", "tests"
 
 
 def install(session, *dependencies):
