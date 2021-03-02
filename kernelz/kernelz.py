@@ -6,7 +6,8 @@ from rich.console import Console
 from rich.table import Table
 
 from kernelz.core import run_command
-from kernelz.jupyter import list_kernels, list_kernels_like, get_kernel, Kernel, CondaEnv, list_conda_envs
+from kernelz.jupyter import list_kernels, list_kernels_like, get_kernel, Kernel, CondaEnv, list_conda_envs,\
+    get_kernels_here, create_kernel
 
 """
 Kernelz
@@ -209,6 +210,27 @@ def envs():
     table = envs_to_table(conda_envs)
     typer.secho("\nConda Environments\n", fg=typer.colors.BRIGHT_BLUE)
     console.print(table)
+
+
+@app.command()
+def add(name: str):
+    """
+    Add the kernel with that name to this executable if the executable does not have a kernel
+    :param name:
+    :return:
+    """
+    # Is there currently kernel here
+    kernels = get_kernels_here()
+    console = Console()
+    if len(kernels) > 0:
+        console.print("You already have kernels here")
+        console.print(kernels[0])
+    else:
+        result = create_kernel(name)
+        console.print(result)
+        if f"Installed kernelspec {name}" in result:
+            kernels = get_kernels_here()
+            console.print(kernels[0])
 
 
 if __name__ == '__main__':

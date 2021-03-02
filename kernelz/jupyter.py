@@ -6,14 +6,14 @@ import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 
 import pendulum
 
 from kernelz.core import run_command
 
 __all__ = ['list_kernels', 'list_kernel_dirs', 'list_kernels_like', 'list_conda_envs',
-           'get_kernel', 'Kernel', 'CondaEnv']
+           'get_kernel', 'get_kernels_here', 'Kernel', 'CondaEnv']
 
 env = os.environ
 
@@ -228,6 +228,31 @@ def get_kernel(kernel_name: str) -> Optional[Kernel]:
         return kernels[0]
 
 
+def get_kernels_here() -> Optional[Kernel]:
+    """
+    Get the kernels registered for this python executable
+    :return: the kernel that is registered for this executable
+    """
+    return list(filter(lambda k: k.get_executable() == sys.executable, list_kernels()))
+
+
+def create_kernel(name: str):
+    """
+    Create a kernel
+    :param name: The name of the kernel
+    :return:
+    """
+    return run_command("python",
+                       "-m",
+                       "ipykernel",
+                       "install",
+                       "--user",
+                       "--name",
+                       name,
+                       "--display-name",
+                       name)
+
+
 @dataclass
 class CondaEnv:
     name: str
@@ -235,7 +260,11 @@ class CondaEnv:
     active: bool
 
 
-def list_conda_envs():
+def list_conda_envs() -> List[CondaEnv]:
+    """
+    List the conda environments on this system
+    :return:
+    """
     result = run_command('conda', 'env', 'list')
     envs = []
     for line in result.splitlines():

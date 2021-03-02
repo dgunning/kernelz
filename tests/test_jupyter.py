@@ -1,7 +1,9 @@
 import os
 
-from kernelz.jupyter import list_kernels, list_kernel_dirs, get_kernel, list_kernels_like
+from kernelz.jupyter import list_kernels, list_kernel_dirs, get_kernel, list_kernels_like, get_kernels_here
 from kernelz.kernelz import find_kernel
+from kernelz.core import get_python
+import sys
 
 
 def setenv(monkeypatch):
@@ -57,3 +59,10 @@ def test_find_kernel(monkeypatch):
     kernel = find_kernel('squad')
     assert kernel
     assert kernel.name == 'squad'
+
+
+def test_kernels_here(monkeypatch):
+    setenv(monkeypatch)
+    kernels_here = get_kernels_here()
+    print(kernels_here)
+    #assert not(kernels_here)
