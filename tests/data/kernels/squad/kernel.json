@@ -1,11 +1,11 @@
 {
- "argv": [
-  "C:\\Users\\kent\\.virtualenvs\\cord19\\Scripts\\python.exe",
-  "-m",
-  "ipykernel_launcher",
-  "-f",
-  "{connection_file}"
- ],
- "display_name": "cord",
- "language": "python"
+  "argv": [
+    "C:\\Users\\kent\\.virtualenvs\\cord19\\Scripts\\python.exe",
+    "-m",
+    "ipykernel_launcher",
+    "-f",
+    "{connection_file}"
+  ],
+  "display_name": "cord",
+  "language": "python"
 }
